@@ -16,11 +16,11 @@ import csv
 
 class CEC_functions:
     def __init__(self , dim):
-        csv_file = open('extdata/M_D' + str(dim) + '.txt')
+        csv_file = open(r'func/cec_2013/extdata/M_D' + str(dim) + '.txt')
         csv_data = csv.reader(csv_file, delimiter=' ')
         csv_data_not_null = [[float(data) for data in row if len(data) > 0] for row in csv_data]
         self.rotate_data = np.array(csv_data_not_null)
-        csv_file = open('extdata/shift_data.txt')
+        csv_file = open(r'func/cec_2013/extdata/shift_data.txt')
         csv_data = csv.reader(csv_file, delimiter=' ')
         self.sd = []
         for row in csv_data:
@@ -45,7 +45,7 @@ class CEC_functions:
         D = len(X)
         for i in range(D):
             if X[i] > 0:
-                Y[i] = X[i] ** (1 + beta * (i/(D-1)) * np.sqrt(X[i])  ) 
+                Y[i] = X[i] ** (1 + beta * (i/(D-1)) * np.sqrt(X[i])  )
         pass
 
     def T_osz (self ,X):
@@ -72,7 +72,7 @@ class CEC_functions:
         omega = W_star/np.sum(W_star) * (fit + bias)
 
         return np.sum(omega)
-        
+
     def Y(self , X , fun_num, rflag = None):
         if rflag is None:
             rf = [0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1,1,0,1,1,1,1,1,1][fun_num - 1]
@@ -81,7 +81,7 @@ class CEC_functions:
 
         # Unimodal Functions
         # Sphere Function
-        # 1    
+        # 1
         if fun_num == 1:
             Z = X - self.O
             if rf == 1:
@@ -90,14 +90,14 @@ class CEC_functions:
 
 
         # Rotated High Conditioned Elliptic Function
-        # 2       
+        # 2
         elif fun_num == 2:
             d = len(X)
             X_shift = X - self.O
             X_rotate = self.M1 @ X_shift
             self.T_osz(X_rotate)
             Y = np.sum((1e6 ** (np.arange(d)/(d-1))) * X_rotate**2) - 1300
-        
+
 
         # Rotated Bent Cigar Function
         # 3
@@ -173,7 +173,7 @@ class CEC_functions:
             X_shift = 0.005 * (X - self.O)
             X_rotate_1 = self.M1 @ ( X_shift)
             self.T_asy(X_rotate_1 ,X_shift, 0.5)
-            Z = self.M2 @ (self.carat(d , 10) * X_shift)    
+            Z = self.M2 @ (self.carat(d , 10) * X_shift)
 
             # kmax = 20
 
@@ -190,7 +190,7 @@ class CEC_functions:
             X_shift = (600.0 * (X - self.O))/100.0
             X_rotate = self.M1 @  X_shift
             Z   = self.carat(d , 100) * X_rotate  # used carat as matrix not sure though!!!
- 
+
             Y = 1.0 + (np.sum(Z**2 )/4000.0) - np.multiply.reduce(np.cos(Z / np.sqrt(np.arange(1, d + 1)))) - 500
 
 
@@ -207,7 +207,7 @@ class CEC_functions:
             if rf == 1:
                 X_shift = self.M2 @ X_shift
             Z = self.carat(d, 10) * X_shift
-            
+
             Y = np.sum(10 + Z**2 - 10 * np.cos(2 * np.pi * Z)) - 400
 
         # Rotated Rastrigin’s Function
@@ -244,7 +244,7 @@ class CEC_functions:
             Y = np.sum(10 + Z**2 - 10 * np.cos(2 * np.pi * Z)) - 200
 
         # Schwefel’s Function
-        # 14 15    
+        # 14 15
         elif fun_num == 14 or fun_num == 15:
             d = len(X)
             X_shift = 10 * (X - self.O)
@@ -275,7 +275,7 @@ class CEC_functions:
 
             for i in range(d):
                 Z[i] = (1 + (i+1) * _kat(Z[i]))
-            
+
             Z = np.multiply.reduce(Z**(10/d**1.2))
             Y = (10/d**2) * Z - (10/d**2) + 200
 
@@ -300,7 +300,7 @@ class CEC_functions:
             Z    = self.carat(d , 100) * Z
             if rf:
                 Z = self.M2 @ Z
-            
+
             Y_1 = []
             Y_2 = []
             for i in range(d):
@@ -311,7 +311,7 @@ class CEC_functions:
             Y   = Y_3 + 10 * (d - np.sum(np.cos(2 * np.pi * Z))) + (300 if fun_num == 17 else 400)
 
         # Rotated Expanded Griewank’s plus Rosenbrock’s Function
-        # 19    
+        # 19
         elif fun_num == 19:
             d = len(X)
             X_shift = 0.05 * (X - self.O) + 1
@@ -321,7 +321,7 @@ class CEC_functions:
             Z    = np.sum(tmp**2/4000 - np.cos(tmp) + 1)
 
             Y = Z + 500
-           
+
         # Rotated Expanded Scaffer’s F6 Function
         # 20
         elif fun_num == 20:
@@ -345,20 +345,20 @@ class CEC_functions:
             fit = []
             fit.append( (self.Y(X , 6 , rf) + 900)/1     )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
-            self.M2 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 1)
+            self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 5 , rf) + 1000)/1e6  )
             self.O = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
-            self.M2 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 2)
+            self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 3 , rf) + 1200)/1e26 )
             self.O = self.shift_data(d, 3)
-            self.M1 = self.read_M(d, 3) 
-            self.M2 = self.read_M(d, 4) 
+            self.M1 = self.read_M(d, 3)
+            self.M2 = self.read_M(d, 4)
             fit.append( (self.Y(X , 4 , rf) + 1100)/1e6  )
             self.O = self.shift_data(d, 4)
-            self.M1 = self.read_M(d, 4) 
-            self.M2 = self.read_M(d, 5) 
+            self.M1 = self.read_M(d, 4)
+            self.M2 = self.read_M(d, 5)
             fit.append( (self.Y(X , 1 , rf) + 1400)/1e1  )
 
             Y= self.cf_cal(X, delta, bias, np.array(fit)) + 700
@@ -370,12 +370,12 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 14 , rf) + 100)/1     )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
-            self.M2 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 1)
+            self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 14 , rf) + 100)/1     )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
-            self.M2 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 2)
+            self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 14 , rf) + 100)/1     )
 
             Y = Y= self.cf_cal(X, delta, bias, np.array(fit)) + 800
@@ -387,16 +387,16 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 15 , rf) - 100)/1     )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
-            self.M2 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 1)
+            self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 15 , rf) - 100)/1     )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
-            self.M2 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 2)
+            self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 15 , rf) - 100)/1     )
 
             Y =  self.cf_cal(X, delta, bias, np.array(fit)) + 900
-     
+
         elif fun_num == 24:
             d = len(X)
             delta = np.array([20 , 20 , 20])
@@ -404,12 +404,12 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 15 , rf) - 100) * 0.25   )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
+            self.M1 = self.read_M(d, 1)
             self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 12 , rf)  + 300) * 1   )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
-            self.M2 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 2)
+            self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 9 , rf)  + 600) * 2.5   )
 
             Y = self.cf_cal(X, delta, bias, np.array(fit)) + 1000
@@ -421,12 +421,12 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 15 , rf) - 100) * 0.25   )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
+            self.M1 = self.read_M(d, 1)
             self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 12 , rf)  + 300) * 1   )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
-            self.M2 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 2)
+            self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 9 , rf)  + 600) * 2.5   )
 
             Y = self.cf_cal(X, delta, bias, np.array(fit)) + 1100
@@ -438,19 +438,19 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 15 , rf) - 100) * 0.25   )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
+            self.M1 = self.read_M(d, 1)
             self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 12 , rf)  + 300) * 1   )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 2)
             self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 2 , rf)  + 1300) / 1e7   )
             self.O  = self.shift_data(d, 3)
-            self.M1 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 3)
             self.M2 = self.read_M(d, 4)
             fit.append( (self.Y(X , 9 , rf)  + 600) * 2.5   )
             self.O  = self.shift_data(d, 4)
-            self.M1 = self.read_M(d, 4) 
+            self.M1 = self.read_M(d, 4)
             self.M2 = self.read_M(d, 5)
             fit.append( (self.Y(X , 10 , rf)  + 500) * 10   )
 
@@ -462,19 +462,19 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 10 , rf)  + 500) * 100   )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
+            self.M1 = self.read_M(d, 1)
             self.M2 = self.read_M(d, 2)
             fit.append( (self.Y(X , 12 , rf)  + 300) * 10  )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 2)
             self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 15 , rf) - 100) * 2.5   )
             self.O  = self.shift_data(d, 3)
-            self.M1 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 3)
             self.M2 = self.read_M(d, 4)
             fit.append( (self.Y(X , 9 , rf) + 600) * 25   )
             self.O  = self.shift_data(d, 4)
-            self.M1 = self.read_M(d, 4) 
+            self.M1 = self.read_M(d, 4)
             self.M2 = self.read_M(d, 5)
             fit.append( (self.Y(X , 1 , rf) + 1400) / 1e1  )
 
@@ -487,19 +487,19 @@ class CEC_functions:
             fit   = []
             fit.append( (self.Y(X , 19 , rf) - 500) * 2.5   )
             self.O  = self.shift_data(d, 1)
-            self.M1 = self.read_M(d, 1) 
+            self.M1 = self.read_M(d, 1)
             self.M2 = self.read_M(d, 2)
             fit.append( ((self.Y(X , 7 , rf) + 800) * 2.5) / 1e3  )
             self.O  = self.shift_data(d, 2)
-            self.M1 = self.read_M(d, 2) 
+            self.M1 = self.read_M(d, 2)
             self.M2 = self.read_M(d, 3)
             fit.append( (self.Y(X , 15 , rf) - 100) * 2.5   )
             self.O  = self.shift_data(d, 3)
-            self.M1 = self.read_M(d, 3) 
+            self.M1 = self.read_M(d, 3)
             self.M2 = self.read_M(d, 4)
             fit.append( ((self.Y(X , 20 , rf) - 600) * 5) / 1e4   )
             self.O  = self.shift_data(d, 4)
-            self.M1 = self.read_M(d, 4) 
+            self.M1 = self.read_M(d, 4)
             self.M2 = self.read_M(d, 5)
             fit.append( (self.Y(X , 1 , rf) + 1400) / 1e1  )
 
@@ -508,18 +508,14 @@ class CEC_functions:
         return Y
 # example of testing
 if __name__ == "__main__":
-    f_num = 9
-    cec_functions = CEC_functions(30)
 
-    X = np.ones(30)
+    for f_num in range(1,29):
+        cec_functions = CEC_functions(30)
+        X = np.ones(30)
 
-    #C Calculations
-    # import cic13functions
-    # C_Y = np.longdouble(cic13functions.run(str(f_num) + ',' + str(list(X))[1:-1]))
+        #Python Calculations
+        P_Y = cec_functions.Y(X , f_num)
 
-    #Python Calculations
-    P_Y = cec_functions.Y(X , f_num)
+        # print('c response:', C_Y )
+        print('function num: ', f_num, 'python response:' , P_Y)
 
-    # print('c response:', C_Y )
-    print('python response:' , P_Y)
-    pass
